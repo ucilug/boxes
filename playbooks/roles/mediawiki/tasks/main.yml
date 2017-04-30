@@ -25,6 +25,7 @@
     group: www-data
     extra_opts: ['--strip-components=1']
     remote_src: True
+  register: mediawiki_download_mediawiki
 
 - name: Download and extract extensions
   unarchive:
@@ -92,7 +93,8 @@
   command: "php maintenance/update.php --dbname='{{ db_name }}' --dbuser='{{ temp_user }}' --dbpass='{{ temp_password }}'"
   args:
     chdir: "{{ script_dir }}"
-  when: (mediawiki_download_extensions.changed == True) or
+  when: (mediawiki_download_mediawiki.changed == True) or
+        (mediawiki_download_extensions.changed == True) or
         (mediawiki_generate_localsettings.changed == True)
 
 - name: Remove temporary database user
