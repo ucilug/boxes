@@ -19,7 +19,7 @@
 
 - name: Download and extract MediaWiki
   unarchive:
-    src: "https://releases.wikimedia.org/mediawiki/1.28/mediawiki-1.28.1.tar.gz"
+    src: "https://releases.wikimedia.org/mediawiki/1.28/mediawiki-1.28.2.tar.gz"
     dest: "{{ script_dir }}"
     owner: www-data
     group: www-data
