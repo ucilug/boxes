@@ -39,6 +39,7 @@
     - "https://extdist.wmflabs.org/dist/extensions/MobileFrontend-REL1_28-a0c8024.tar.gz"
     - "https://extdist.wmflabs.org/dist/extensions/Echo-REL1_28-f55bdd9.tar.gz"
     - "https://extdist.wmflabs.org/dist/extensions/Math-REL1_28-1097ee7.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/OAuth-REL1_28-d8c715b.tar.gz"
     - "https://github.com/SemanticMediaWiki/SemanticMediaWiki/releases/download/2.5.1/Semantic_MediaWiki_2.5.1_and_dependencies.tgz"
 # FIXME: This is failure-prone, as those URLs are temporary
   register: mediawiki_download_extensions

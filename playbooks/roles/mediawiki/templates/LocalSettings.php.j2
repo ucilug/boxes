@@ -134,11 +134,21 @@ $wgFileExtensions[] = 'pdf';
 # Path to the GNU diff3 utility. Used for conflict resolution.
 $wgDiff3 = "/usr/bin/diff3";
 
+# OAuth configurations
+$wgMWOAuthSecureTokenTransfer = true;
+
 # Group permissions
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['user']['purge'] = true;
+$wgGroupPermissions['user']['mwoauthproposeconsumer'] = true;
+$wgGroupPermissions['user']['mwoauthupdateownconsumer'] = true;
+$wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
 $wgGroupPermissions['sysop']['deletelogentry'] = true;
 $wgGroupPermissions['sysop']['deleterevision'] = true;
+$wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;
+$wgGroupPermissions['bureaucrat']['mwoauthsuppress'] = true;
+$wgGroupPermissions['bureaucrat']['mwoauthviewsuppressed'] = true;
+$wgGroupPermissions['bureaucrat']['mwoauthviewprivate'] = true;
 
 # Autoconfirm thresholds.
 $wgAutoConfirmAge = 345600;
@@ -190,6 +200,7 @@ wfLoadExtension( 'SyntaxHighlight_GeSHi' );
 wfLoadExtension( 'TitleBlacklist' );
 wfLoadExtension( 'WikiEditor' );
 wfLoadExtension( 'OATHAuth' );
+wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'Math' );
 wfLoadExtension( 'MobileFrontend' );
 
