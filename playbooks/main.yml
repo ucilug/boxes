@@ -27,9 +27,9 @@
     upload_domain: uploads.ucilug.org
     enable_https: True
     enable_hsts: True
-    referrer_policy: same-origin
+    referrer_policy: origin
     x_frame_options: SAMEORIGIN
-    content_security_policy: "upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https://uploads.ucilug.org/ https://upload.wikimedia.org/; media-src 'self' https://upload.wikimedia.org/; style-src 'self' 'unsafe-inline' https://commons.wikimedia.org/; form-action 'self' https://mail.clubs.uci.edu/;"
+    content_security_policy: "upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https://uploads.ucilug.org/ https://upload.wikimedia.org/; media-src 'self' https://uploads.ucilug.org/ https://upload.wikimedia.org/; style-src 'self' 'unsafe-inline' https://commons.wikimedia.org/; form-action 'self' https://mail.clubs.uci.edu/;"
     db_user: mediawiki
     db_name: mediawiki
     script_path: /w
