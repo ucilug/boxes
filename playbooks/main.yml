@@ -1,0 +1,71 @@
+---
+- hosts: all
+  gather_facts: False
+
+- name: Servers
+  hosts: servers
+  become: yes
+  become_user: root
+  roles:
+    - common
+    - firewall
+    - yubikey
+    - apache2
+    - letsencrypt
+
+- name: Wiki
+  hosts: web
+  become: yes
+  become_user: root
+  roles:
+    - apache2-mediawiki
+    - mariadb
+    - mediawiki
+  vars:
+    domain: ucilug.org
+    cert_domain: ucilug.org
+    upload_domain: uploads.ucilug.org
+    enable_https: True
+    enable_hsts: True
+    referrer_policy: same-origin
+    x_frame_options: SAMEORIGIN
+    db_user: mediawiki
+    db_name: mediawiki
+    script_path: /w
+    article_path: wiki
+    wiki_name: "LUG@UCI"
+    wiki_namespace: "LUG"
+    admin_user: "Admin"
+# NOTE: This "Admin" user should never exist, as we already have existing data. If it gets created, something has gone seriously wrong.
+
+- name: Wiki uploads
+  hosts: web
+  become: yes
+  become_user: root
+  roles:
+    - apache2-site
+  vars:
+    domain: uploads.ucilug.org
+    cert_domain: ucilug.org
+    enable_https: True
+    enable_hsts: True
+    referrer_policy: same-origin
+    x_frame_options: SAMEORIGIN
+
+- name: www.ucilug.org redirect
+  hosts: web
+  become: yes
+  become_user: root
+  roles:
+    - apache2-redirect
+  vars:
+    domain: www.ucilug.org
+    cert_domain: ucilug.org
+    target: https://ucilug.org/
+    enable_https: True
+    enable_hsts: True
+    referrer_policy: strict_origin
+    x_frame_options: SAMEORIGIN
+    content_security_policy: "sandbox; default-src 'self';"
+
+

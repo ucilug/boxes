@@ -1,0 +1,64 @@
+# {{ ansible_managed }}
+
+<VirtualHost *:80>
+	ServerName {{ domain }}
+
+	{% block headers %}
+		Header always set X-Xss-Protection "1; mode=block"
+
+		{% if referrer_policy is defined %}
+			Header always set Referrer-Policy "{{ referrer_policy }}"
+		{% endif %}
+
+		{% if x_frame_options is defined %}
+			Header always set X-Frame-Options "{{ x_frame_options }}"
+		{% endif %}
+
+		{% if content_security_policy is defined %}
+			Header always set Content-Security-Policy "{{ content_security_policy }}"
+		{% endif %}
+
+	{% endblock %}
+
+	{% if enable_https is defined and enable_https %}
+		{% block https_redirect %}
+			Redirect permanent / https://{{ domain }}/
+		{% endblock %}
+	{% else %}
+		{% block config_http %}
+		{% endblock %}
+		{% block config_common %}
+		{% endblock %}
+	{% endif %}
+
+
+	ErrorLog /var/www/{{ domain }}/logs/error.log
+	LogLevel warn
+	CustomLog /var/www/{{ domain }}/logs/access.log combined
+</VirtualHost>
+<VirtualHost *:443>
+	ServerName {{ domain }}
+
+	{{ self.headers() }}
+
+	{% if enable_https is defined and enable_https and enable_hsts is defined and enable_hsts %}
+		Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+	{% endif %}
+
+	{% block config_https %}
+	{% endblock %}
+	{{ self.config_common() }}
+
+	{% if enable_https is defined and enable_https %}
+		SSLEngine on
+		SSLProtocol All -SSLv2 -SSLv3
+		SSLHonorCipherOrder On
+		SSLCipherSuite "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4"
+		SSLCertificateFile /opt/dehydrated/certs/{{ cert_domain }}/fullchain.pem
+		SSLCertificateKeyFile /opt/dehydrated/certs/{{ cert_domain }}/privkey.pem
+	{% endif %}
+
+	ErrorLog /var/www/{{ domain }}/logs/error.log
+	LogLevel warn
+	CustomLog /var/www/{{ domain }}/logs/access.log combined
+</VirtualHost>

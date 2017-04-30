@@ -1,0 +1,40 @@
+---
+- name: Install ufw
+  apt:
+    name: ufw
+    state: present
+
+- name: Limit default SSH port
+  ufw:
+    port: 22
+    proto: tcp
+    rule: limit
+  when: ansible_port is undefined or ansible_port == "22"
+
+- name: Limit non-default SSH port
+  ufw:
+    port: "{{ ansible_port }}"
+    proto: tcp
+    rule: limit
+  when: ansible_port is defined and ansible_port != "22"
+
+- name: Allow mosh traffic
+  ufw:
+    port: "60000:61000"
+    proto: udp
+    rule: allow
+
+- name: Allow HTTP(S) traffic
+  ufw:
+    port: "{{ item }}"
+    proto: tcp
+    rule: allow
+  with_items:
+    - 80
+    - 443
+  when: '"apache2" in role_names'
+
+- name: Enable firewall
+  ufw:
+    state: enabled
+    policy: allow

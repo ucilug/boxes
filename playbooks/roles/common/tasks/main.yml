@@ -1,0 +1,57 @@
+---
+- name: Ensure the APT cache is up to date
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist 
+
+- name: Remove Scaleway MOTD
+  file:
+    path: /etc/update-motd.d/50-scw
+    state: absent
+
+- name: Detect /etc/motd.dynamic existence
+  stat:
+    path: /etc/motd.dynamic
+  register: detect_motd_dynamic_existence
+
+- name: Link /var/run/motd.dynamic to /etc/motd
+  file:
+    src: /var/run/motd.dynamic
+    dest: /etc/motd
+    state: link
+  when: detect_motd_dynamic_existence.stat.exists
+
+- name: Ensure /root/.ssh exists
+  file:
+    path: /root/.ssh
+    state: directory
+
+- name: Detect Scaleway-specific instance_keys file
+  stat:
+    path: /root/.ssh/instance_keys
+  register: detect_scaleway_keylist
+
+- name: Copy SSH keys for root user
+  copy:
+    src: "{{ playbook_dir }}/../shared/authorized_keys"
+    dest: /root/.ssh/authorized_keys
+  when: detect_scaleway_keylist.stat.exists == False
+
+- name: Copy SSH keys for root user (Scaleway-specific)
+  copy:
+    src: "{{ playbook_dir }}/../shared/authorized_keys"
+    dest: /root/.ssh/instance_keys
+  when: detect_scaleway_keylist.stat.exists == True
+
+- name: Set up unattended upgrades
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - unattended-upgrades
+    - apt-listchanges
+

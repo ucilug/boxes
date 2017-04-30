@@ -1,0 +1,59 @@
+---
+- name: Ensure apache2 is installed
+  apt:
+    name: apache2
+    state: installed
+
+- name: Ensure libapache2-mod-php7.0 and common extensions are installed
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - libapache2-mod-php7.0
+    - php7.0-mbstring
+    - php7.0-mysql
+    - php7.0-intl
+    - php7.0-xml
+  register: apache2_installmodphp70
+
+- name: Enable mod_headers
+  apache2_module:
+    name: headers
+    state: present
+  register: apache2_modheaders
+
+- name: Enable mod_rewrite
+  apache2_module:
+    name: rewrite
+    state: present
+  register: apache2_modrewrite
+
+- name: Create directory structure
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: www-data
+    group: www-data
+  with_items:
+    - /var/www/default/htdocs
+    - /var/www/default/logs
+
+- name: Copy default htdocs
+  copy:
+    src: index.html
+    dest: /var/www/default/htdocs
+    owner: www-data
+    group: www-data
+
+- name: Overwrite 000-default.conf
+  copy:
+    src: 000-default.conf
+    dest: /etc/apache2/sites-available/000-default.conf
+  register: apache2_copydefaultconf
+
+- name: Restart apache2
+  systemd:
+    name: apache2
+    state: restarted
+    daemon_reload: yes
+  when: apache2_installmodphp70.changed or apache2_copydefaultconf.changed or apache2_modheaders.changed or apache2_modrewrite.changed

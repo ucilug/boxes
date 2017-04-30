@@ -1,0 +1,17 @@
+---
+- name: Install libpam-yubico
+  apt:
+    name: libpam-yubico
+    state: present
+
+- name: Copy YubiKey mapping file
+  copy:
+    src: "{{ playbook_dir }}/../shared/yubikey_mappings"
+    dest: /etc/yubikey_mappings
+
+- name: Configure PAM to use libpam-yubico for sudo
+  lineinfile:
+    name: /etc/pam.d/sudo
+    line: "auth sufficient pam_yubico.so id=30211 authfile=/etc/yubikey_mappings key={{ yubikey_apikey }}"
+    insertafter: "^#%PAM-1.0"
+

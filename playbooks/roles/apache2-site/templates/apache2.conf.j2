@@ -1,0 +1,15 @@
+{% extends "/roles/apache2/templates/vhost.conf.j2" %}
+
+{% block config_common %}
+	DocumentRoot /var/www/{{ domain }}/htdocs
+	<Directory />
+		Options None
+		AllowOverride None
+		Require all denied
+	</Directory>
+	<Directory /var/www/{{ domain }}/htdocs>
+		Options +FollowSymLinks -Indexes
+		AllowOverride All
+		Require all granted
+	</Directory>
+{% endblock %}

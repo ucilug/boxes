@@ -1,0 +1,101 @@
+---
+- name: Make sure memcached is installed
+  apt:
+    name: memcached
+    state: present
+
+- name: Generate required vars
+  set_fact:
+    script_dir: "/var/www/{{ domain }}/htdocs/{{ script_path }}"
+    temp_user: "mediawiki-admin"
+    temp_password: "{{ 999999999999999999994 | random | to_uuid }}"
+
+- name: Create the script path
+  file:
+    path: "{{ script_dir }}"
+    owner: www-data
+    group: www-data
+    state: directory
+
+- name: Download and extract MediaWiki
+  unarchive:
+    src: "https://releases.wikimedia.org/mediawiki/1.28/mediawiki-1.28.1.tar.gz"
+    dest: "{{ script_dir }}"
+    owner: www-data
+    group: www-data
+    extra_opts: ['--strip-components=1']
+    remote_src: True
+
+- name: Download and extract extensions
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ script_dir }}/extensions"
+    owner: www-data
+    group: www-data
+    remote_src: True
+  with_items:
+    - "https://extdist.wmflabs.org/dist/extensions/OATHAuth-REL1_28-56523b6.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/MobileFrontend-REL1_28-a0c8024.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/Echo-REL1_28-f55bdd9.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/Math-REL1_28-1097ee7.tar.gz"
+    - "https://github.com/SemanticMediaWiki/SemanticMediaWiki/releases/download/2.5.1/Semantic_MediaWiki_2.5.1_and_dependencies.tgz"
+# FIXME: This is failure-prone, as those URLs are temporary
+  register: mediawiki_download_extensions
+
+- name: Download and extract Scribunto
+  unarchive:
+    src: "https://extdist.wmflabs.org/dist/extensions/Scribunto-REL1_28-a665621.tar.gz"
+    dest: "{{ script_dir }}/extensions"
+    owner: www-data
+    group: www-data
+    remote_src: True
+# NOTE: Separated from the previous task just to avoid an unnecessary update.php run
+
+- name: Set execute bit on prebuilt lua binaries
+  file:
+    path: "{{ script_dir }}/extensions/Scribunto/engines/LuaStandalone/binaries/"
+    state: directory
+    mode: "u+x,g+x"
+    recurse: yes
+
+- name: Create temporary database user for installation/update
+  mysql_user:
+    name: "{{ temp_user }}"
+    password: "{{ temp_password }}"
+    update_password: always
+    priv: "{{ db_name }}.*:ALL"
+    state: present
+  register: mediawiki_create_temp_user
+
+- name: Detect previous LocalSettings.php presense
+  stat:
+    path: "{{ script_dir }}/LocalSettings.php"
+  register: mediawiki_detect_existing_localsettings
+
+- name: Run install.php
+  command: "php maintenance/install.php --dbname='{{ db_name }}' --dbuser='{{ temp_user }}' --dbpass='{{ temp_password }}' --pass='{{ admin_password }}' '{{ wiki_name }}' '{{ admin_user }}' --confpath='/tmp'"
+  args:
+    chdir: "{{ script_dir }}"
+  when: mediawiki_detect_existing_localsettings.stat.exists == False
+  register: mediawiki_run_install
+
+- name: Generate LocalSettings.php
+  template:
+    src: LocalSettings.php.j2
+    dest: "{{ script_dir }}/LocalSettings.php"
+    owner: www-data
+    group: www-data
+    mode: "u=rw,g=,o="
+  register: mediawiki_generate_localsettings
+
+- name: Run update.php
+  command: "php maintenance/update.php --dbname='{{ db_name }}' --dbuser='{{ temp_user }}' --dbpass='{{ temp_password }}'"
+  args:
+    chdir: "{{ script_dir }}"
+  when: (mediawiki_download_extensions.changed == True) or
+        (mediawiki_generate_localsettings.changed == True)
+
+- name: Remove temporary database user
+  mysql_user:
+    name: "{{ temp_user }}"
+    state: absent

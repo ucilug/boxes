@@ -1,0 +1,53 @@
+---
+- name: Install git
+  apt:
+    name: git
+    state: present
+
+- name: Download dehydrated
+  git:
+    repo: https://github.com/lukas2511/dehydrated.git
+    dest: /opt/dehydrated
+    depth: 1
+
+- name: Install pip and pip3
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3-pip
+    - python-pip
+
+- name: Install required pip packages
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "requests[security]"
+    - dns-lexicon
+
+- name: Copy lexicon dns-01 hook
+  copy:
+    src: dehydrated.default.sh
+    dest: /opt/dehydrated
+    mode: "u=rwx,g=rx,o=rx"
+
+- name: Generate domains.txt
+  copy:
+    content: "{{ letsencrypt_domains }}"
+    dest: /opt/dehydrated/domains.txt
+
+- name: Register and accept terms
+  command: "env {{ letsencrypt_env }} /opt/dehydrated/dehydrated --register --accept-terms"
+  args:
+    chdir: /opt/dehydrated
+    creates: "/opt/dehydrated/accounts/*"
+
+- name: Request/Renew certificates
+  command: "env {{ letsencrypt_env }} /opt/dehydrated/dehydrated --cron --hook /opt/dehydrated/dehydrated.default.sh --challenge dns-01"
+  args:
+    chdir: /opt/dehydrated
+  register: letsencrypt_renew
+  changed_when: '"challenge" in letsencrypt_renew.stdout'
+
+

@@ -1,0 +1,43 @@
+---
+- name: Create directory structure
+  file:
+    path: "/var/www/{{ domain }}/{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+  with_items:
+    - "htdocs"
+    - "logs"
+
+- name: Enable mod_ssl
+  apache2_module:
+    name: ssl
+    state: present
+  when: enable_https is defined and enable_https
+  register: apache2site_modssl
+
+- name: Copy configuration file
+  template:
+    src: apache2.conf.j2
+    dest: "/etc/apache2/sites-available/{{ domain }}.conf"
+  register: apache2site_copyconfig
+
+- name: Enable site
+  command: "a2ensite {{ domain }}"
+  register: apache2site_enablesite
+  changed_when: '"Enabling site " in apache2site_enablesite.stdout'
+  failed_when: '"ERROR: " in apache2site_enablesite.stdout'
+
+- name: Reload apache2
+  systemd:
+    name: apache2
+    state: reloaded
+  register: apache2site_reload
+  when: apache2site_copyconfig.changed or apache2site_enablesite.changed
+
+- name: Restart apache2
+  systemd:
+    name: apache2
+    state: restarted
+  when: apache2site_modssl.changed
+

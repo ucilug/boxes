@@ -1,0 +1,28 @@
+---
+- name: Ensure MariaDB is installed
+  apt:
+    name: mariadb-server
+    state: present
+
+- name: Ensure python-mysqldb is installed
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3-mysqldb
+    - python-mysqldb
+
+- name: Create database
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+  register: create_database
+
+- name: Create user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    update_password: always
+    priv: "{{ db_name }}.*:SELECT,INSERT,UPDATE,DELETE"
+    state: present
+  register: create_user

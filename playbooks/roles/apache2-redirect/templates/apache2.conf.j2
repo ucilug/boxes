@@ -1,0 +1,9 @@
+{% extends "/roles/apache2/templates/vhost.conf.j2" %}
+
+{% block config_common %}
+	Redirect / {{ target }}
+{% endblock %}
+
+{% block https_redirect %}
+	Redirect / {{ target }}
+{% endblock %}
