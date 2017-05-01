@@ -146,6 +146,7 @@ $wgGroupPermissions['user']['mwoauthmanagemygrants'] = true;
 $wgGroupPermissions['sysop']['deletelogentry'] = true;
 $wgGroupPermissions['sysop']['deleterevision'] = true;
 $wgGroupPermissions['sysop']['mwoauthmanageconsumer'] = true;
+$wgGroupPermissions['sysop']['securepoll-create-poll'] = true;
 $wgGroupPermissions['bureaucrat']['mwoauthsuppress'] = true;
 $wgGroupPermissions['bureaucrat']['mwoauthviewsuppressed'] = true;
 $wgGroupPermissions['bureaucrat']['mwoauthviewprivate'] = true;
@@ -203,6 +204,7 @@ wfLoadExtension( 'OATHAuth' );
 wfLoadExtension( 'OAuth' );
 wfLoadExtension( 'Math' );
 wfLoadExtension( 'MobileFrontend' );
+wfLoadExtension( 'SecurePoll' );
 
 require_once "$IP/extensions/Echo/Echo.php"; // No extension registration yet
 require_once "$IP/extensions/Scribunto/Scribunto.php";
