@@ -1,0 +1,17 @@
+---
+- name: slack-irc bridge
+  hosts: slack-irc-bridge
+  become: yes
+  become_user: root
+  roles:
+    - nodejs
+    - slack-irc
+  vars:
+    irc_nickname: SlackTux
+    irc_realname: Hole to another universe
+    irc_username: tux
+    irc_server: chat.freenode.net
+    irc_port: 6697
+    irc_secure: "true"
+    slack_mapping:
+      - ["#general", "#ucilug"]

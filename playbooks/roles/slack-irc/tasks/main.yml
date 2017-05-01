@@ -1,0 +1,60 @@
+---
+- name: Create slackirc user
+  user:
+    name: slackirc
+    system: yes
+    createhome: yes
+    home: /opt/slackirc
+    state: present
+
+- name: Clone slack-irc repo
+  become: yes
+  become_user: slackirc
+  git:
+    repo: "https://github.com/zhaofengli/slack-irc.git"
+    dest: /opt/slackirc/slack-irc
+    depth: 1
+    update: yes
+  register: slackirc_download_slackirc
+
+- name: Install dependencies
+  become: yes
+  become_user: slackirc
+  npm:
+    path: /opt/slackirc/slack-irc
+  register: slackirc_install_dependencies
+
+- name: Generate slack-irc configurations
+  become: yes
+  become_user: slackirc
+  template:
+    src: slack-irc.json.j2
+    dest: "/opt/slackirc/{{ irc_nickname }}.json"
+    mode: "u=rw,g=,o="
+  register: slackirc_generate_configs
+
+- name: Generate systemd unit
+  template:
+    src: slack-irc.service.j2
+    dest: "/etc/systemd/system/slack-irc-{{ irc_nickname }}.service"
+  register: slackirc_generate_systemd
+
+- name: Ensure the service has started
+  systemd:
+    name: "slack-irc-{{ irc_nickname }}"
+    state: started
+    enabled: yes
+  register: slackirc_start_service
+
+- name: Restart the service if necessary
+  systemd:
+    name: "slack-irc-{{ irc_nickname }}"
+    state: restarted
+    daemon_reload: yes
+  when:
+    - slackirc_start_service.changed == False
+    - (slackirc_download_slackirc.changed == True) or
+      (slackirc_install_dependencies.changed == True) or
+      (slackirc_generate_configs.changed == True) or
+      (slackirc_generate_systemd.changed == True)
+

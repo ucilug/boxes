@@ -1,0 +1,16 @@
+---
+- name: Add NodeSource APT key
+  apt_key:
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+
+- name: Add NodeSource repo
+  apt_repository:
+    repo: "deb https://deb.nodesource.com/node_7.x jessie main"
+    state: present
+
+- name: Install Node.js
+  apt:
+    name: nodejs
+    update_cache: yes
+    cache_valid_time: 3600

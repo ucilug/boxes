@@ -1,6 +1,8 @@
 [all:vars]
-yubikey_apikey=[Get one from https://upgrade.yubico.com/getapikey/]
+yubikey_apikey="Get one from https://upgrade.yubico.com/getapikey/"
 letsencrypt_env="CA='https://acme-staging.api.letsencrypt.org/directory' CA_TERMS='https://acme-staging.api.letsencrypt.org/terms' PROVIDER=cloudflare LEXICON_CLOUDFLARE_USERNAME=your@email.tld LEXICON_CLOUDFLARE_TOKEN=your-token"
+slack_token="Get one from https://api.slack.com/custom-integrations/legacy-tokens"
+irc_password="Your IRC PASS password"
 
 [servers]
 somebox.foohost.bar letsencrypt_domains="zotlug.tld www.zotlug.tld funstuff.zotlug.tld" db_password="new-database-password" secret_key="64-char-secret-key-for-mediawiki" upgrade_key="upgrade-key-for-mediawiki" admin_password="admin-password-for-mediawiki"

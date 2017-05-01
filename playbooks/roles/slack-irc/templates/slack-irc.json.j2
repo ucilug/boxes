@@ -1,0 +1,26 @@
+[
+	{
+		"nickname": "{{ irc_nickname }}",
+		"server": "{{ irc_server }}",
+		"token": "{{ slack_token }}",
+		"channelMapping": {
+			{% for m in slack_mapping %}
+			"{{ m[0] }}": "{{ m[1] }}"
+				{% if not loop.last %}
+				,
+				{% endif %}
+			{% endfor %}
+		},
+		"ircStatusNotices": {
+			"join": true,
+			"leave": true
+		},
+		"ircOptions": {
+			"port": {{ irc_port }},
+			"secure": {{ irc_secure }},
+			"realName": "{{ irc_realname }}",
+			"userName": "{{ irc_username }}",
+			"password": "{{ irc_password }}"
+		}
+	}
+]
