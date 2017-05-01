@@ -55,3 +55,16 @@
     - unattended-upgrades
     - apt-listchanges
 
+- name: Install other commonly needed packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apt-transport-https
+    - curl
+    - wget
+    - sudo
+    - git
+    - vim
+
+
