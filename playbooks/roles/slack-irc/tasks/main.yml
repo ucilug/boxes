@@ -24,6 +24,11 @@
     path: /opt/slackirc/slack-irc
   register: slackirc_install_dependencies
 
+- name: Build slack-irc
+  command: npm run build
+  args:
+    chdir: /opt/slackirc/slack-irc
+
 - name: Generate slack-irc configurations
   become: yes
   become_user: slackirc
