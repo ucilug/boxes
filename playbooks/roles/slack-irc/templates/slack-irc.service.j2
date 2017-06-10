@@ -2,8 +2,8 @@
 Description=slack-irc bridge ({{ irc_nickname }})
 
 [Service]
-ExecStart=/usr/bin/env npm start -- --config /opt/slackirc/{{ irc_nickname }}.json
-WorkingDirectory=/opt/slackirc/slack-irc
+ExecStart=/usr/bin/env slack-irc --config /opt/slackirc/{{ irc_nickname }}.json
+WorkingDirectory=/opt/slackirc
 User=slackirc
 
 [Install]

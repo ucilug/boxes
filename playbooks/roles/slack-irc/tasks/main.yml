@@ -7,27 +7,12 @@
     home: /opt/slackirc
     state: present
 
-- name: Clone slack-irc repo
-  become: yes
-  become_user: slackirc
-  git:
-    repo: "https://github.com/zhaofengli/slack-irc.git"
-    dest: /opt/slackirc/slack-irc
-    depth: 1
-    update: yes
-  register: slackirc_download_slackirc
-
-- name: Install dependencies
-  become: yes
-  become_user: slackirc
+- name: Install slack-irc
   npm:
-    path: /opt/slackirc/slack-irc
-  register: slackirc_install_dependencies
-
-- name: Build slack-irc
-  command: npm run build
-  args:
-    chdir: /opt/slackirc/slack-irc
+    name: slack-irc
+    state: latest
+    global: yes
+  register: slackirc_download_slackirc
 
 - name: Generate slack-irc configurations
   become: yes
@@ -59,7 +44,6 @@
   when:
     - slackirc_start_service.changed == False
     - (slackirc_download_slackirc.changed == True) or
-      (slackirc_install_dependencies.changed == True) or
       (slackirc_generate_configs.changed == True) or
       (slackirc_generate_systemd.changed == True)
 
