@@ -23,6 +23,6 @@
     name: "{{ db_user }}"
     password: "{{ db_password }}"
     update_password: always
-    priv: "{{ db_name }}.*:SELECT,INSERT,UPDATE,DELETE"
+    priv: "{{ db_name }}.*:CREATE,ALTER,SELECT,INSERT,UPDATE,DELETE"
     state: present
   register: create_user
