@@ -15,6 +15,6 @@ Our server configurations.
 4. Run `make deploy` and hope things don't break
 5. Share the `shared` directory after verifying that everything works
 
-It's important that everyone's `share` directory is up-to-date. An alternative to sharing configurations is to deploy with a central interface (e.g. [Semaphore](https://github.com/ansible-semaphore/semaphore)).
+It's important that everyone's `shared` directory is up-to-date. An alternative to sharing configurations is to deploy with a central interface (e.g. [Semaphore](https://github.com/ansible-semaphore/semaphore)).
 
 To force a rebuild of the MediaWiki database, delete the database and `LocalSettings.php`, then run Ansible again.
