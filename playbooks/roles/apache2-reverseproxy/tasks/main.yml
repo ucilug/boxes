@@ -1,0 +1,60 @@
+---
+- name: Create directory structure
+  file:
+    path: "/var/www/{{ domain }}/logs"
+    state: directory
+    owner: www-data
+    group: www-data
+
+- name: Enable mod_proxy
+  apache2_module:
+    name: proxy
+    state: present
+  register: apache2rp_modproxy
+
+- name: Enable mod_proxy_http
+  apache2_module:
+    name: proxy_http
+    state: present
+  when: '"http://" in proxy or "https://" in proxy'
+  register: apache2rp_modproxyhttp
+
+- name: Enable mod_proxy_wstunnel
+  apache2_module:
+    name: proxy_wstunnel
+    state: present
+  when: '"ws://" in proxy or "wss://" in proxy'
+  register: apache2rp_modproxywstunnel
+
+- name: Enable mod_ssl
+  apache2_module:
+    name: ssl
+    state: present
+  when: enable_https is defined and enable_https
+  register: apache2rp_modssl
+
+- name: Copy configuration file
+  template:
+    src: apache2.conf.j2
+    dest: "/etc/apache2/sites-available/{{ domain }}.conf"
+  register: apache2rp_copyconfig
+
+- name: Enable site
+  command: "a2ensite {{ domain }}"
+  register: apache2rp_enablesite
+  changed_when: '"Enabling site " in apache2rp_enablesite.stdout'
+  failed_when: '"ERROR: " in apache2rp_enablesite.stdout'
+
+- name: Reload apache2
+  systemd:
+    name: apache2
+    state: reloaded
+  register: apache2rp_reload
+  when: apache2rp_copyconfig.changed or apache2rp_enablesite.changed
+
+- name: Restart apache2
+  systemd:
+    name: apache2
+    state: restarted
+  when: apache2rp_modproxy.changed or apache2rp_modproxyhttp.changed or apache2rp_modproxywstunnel.changed or apache2rp_modssl.changed
+

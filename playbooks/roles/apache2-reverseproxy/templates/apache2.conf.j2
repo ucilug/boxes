@@ -1,0 +1,14 @@
+{% extends "/roles/apache2/templates/vhost.conf.j2" %}
+
+{% block config_common %}
+	ProxyPass / {{ proxy }} nocanon
+	ProxyPassReverse / {{ proxy }}
+	ProxyRequests off
+	AllowEncodedSlashes NoDecode
+
+	<Directory />
+		Options None
+		AllowOverride None
+		Require all denied
+	</Directory>
+{% endblock %}
