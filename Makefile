@@ -11,7 +11,7 @@ scaffold:
 	touch shared/yubikey_mappings
 	cp examples/inventory examples/yubikey_mappings shared
 
-deploy: main web slackirc
+deploy: main web slackirc etherpad
 
 main:
 	ansible-playbook -i shared/inventory playbooks/main.yml --private-key private/ansible.key
@@ -22,3 +22,5 @@ web:
 slackirc:
 	ansible-playbook -i shared/inventory playbooks/slackirc.yml --private-key private/ansible.key
 
+etherpad:
+	ansible-playbook -i shared/inventory playbooks/etherpad.yml --private-key private/ansible.key

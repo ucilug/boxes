@@ -1,0 +1,20 @@
+---
+- name: Etherpad
+  hosts: etherpad
+  become: yes
+  become_user: root
+  roles:
+    - nodejs
+    - etherpad
+    - mariadb
+    - apache2-reverseproxy
+  vars:
+    domain: collab.ucilug.org
+    cert_domain: ucilug.org
+    proxy: http://localhost:9001/
+    enable_https: True
+    enable_hsts: True
+    referrer_policy: origin
+    x_frame_options: SAMEORIGIN
+    db_user: etherpad
+    db_name: etherpad

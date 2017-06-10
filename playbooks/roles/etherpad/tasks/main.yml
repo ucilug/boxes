@@ -1,0 +1,66 @@
+---
+- name: Create etherpad user
+  user:
+    name: etherpad
+    system: yes
+    createhome: yes
+    home: /opt/etherpad
+    state: present
+
+- name: Download etherpad-lite
+  become: yes
+  become_user: etherpad
+  git:
+    repo: https://github.com/ether/etherpad-lite
+    dest: /opt/etherpad/etherpad-lite
+    depth: 1
+    update: yes
+  register: etherpad_download_etherpad
+
+- name: Generate Etherpad configurations
+  become: yes
+  become_user: etherpad
+  template:
+    src: settings.json.j2
+    dest: /opt/etherpad/etherpad-lite/settings.json
+    mode: "u=rw,g=,o="
+  register: etherpad_generate_configs
+
+- name: Install Etherpad plugins
+  become: yes
+  become_user: etherpad
+  npm:
+    name: "{{ item }}"
+    path: /opt/etherpad/etherpad-lite
+    state: latest
+  with_items:
+    - ep_headings2
+    - ep_author_neat
+    - ep_default-pad-text
+  register: etherpad_install_plugins
+
+- name: Generate systemd unit
+  template:
+    src: etherpad.service.j2
+    dest: "/etc/systemd/system/etherpad.service"
+  register: etherpad_generate_systemd
+
+- name: Ensure the service has started
+  systemd:
+    name: etherpad
+    state: started
+    enabled: yes
+  register: etherpad_start_service
+
+- name: Restart the service if necessary
+  systemd:
+    name: etherpad
+    state: restarted
+    daemon_reload: yes
+  when:
+    - etherpad_start_service.changed == False
+    - (etherpad_download_etherpad.changed == True) or
+      (etherpad_generate_configs.changed == True) or
+      (etherpad_install_plugins.changed == True) or
+      (etherpad_generate_systemd.changed == True)
+
