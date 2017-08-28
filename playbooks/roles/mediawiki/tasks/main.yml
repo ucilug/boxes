@@ -35,19 +35,19 @@
     group: www-data
     remote_src: True
   with_items:
-    - "https://extdist.wmflabs.org/dist/extensions/OATHAuth-REL1_28-56523b6.tar.gz"
-    - "https://extdist.wmflabs.org/dist/extensions/MobileFrontend-REL1_28-a0c8024.tar.gz"
-    - "https://extdist.wmflabs.org/dist/extensions/Echo-REL1_28-f55bdd9.tar.gz"
-    - "https://extdist.wmflabs.org/dist/extensions/Math-REL1_28-1097ee7.tar.gz"
-    - "https://extdist.wmflabs.org/dist/extensions/OAuth-REL1_28-d8c715b.tar.gz"
-    - "https://extdist.wmflabs.org/dist/extensions/SecurePoll-REL1_28-a7fa003.tar.gz"
-    - "https://github.com/SemanticMediaWiki/SemanticMediaWiki/releases/download/2.5.1/Semantic_MediaWiki_2.5.1_and_dependencies.tgz"
+    - "https://extdist.wmflabs.org/dist/extensions/OATHAuth-REL1_29-18a0c01.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/MobileFrontend-REL1_29-00fab28.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/Echo-REL1_29-a3fd1af.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/Math-REL1_29-05166d9.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/OAuth-REL1_29-4f9fe7e.tar.gz"
+    - "https://extdist.wmflabs.org/dist/extensions/SecurePoll-REL1_29-c5db86b.tar.gz"
+    - "https://github.com/SemanticMediaWiki/SemanticMediaWiki/releases/download/2.5.4/Semantic_MediaWiki_2.5.4_and_dependencies.tgz"
 # FIXME: This is failure-prone, as those URLs are temporary
   register: mediawiki_download_extensions
 
 - name: Download and extract Scribunto
   unarchive:
-    src: "https://extdist.wmflabs.org/dist/extensions/Scribunto-REL1_28-a665621.tar.gz"
+    src: "https://extdist.wmflabs.org/dist/extensions/Scribunto-REL1_29-f1a4d6c.tar.gz"
     dest: "{{ script_dir }}/extensions"
     owner: www-data
     group: www-data
